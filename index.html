@@ -13,6 +13,201 @@ header{height:var(--header-h);background:linear-gradient(135deg,#1e40af,#2563eb)
 .calc{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:8px}.display{background:white;border:1px solid var(--line);border-radius:16px;padding:9px 11px;margin-bottom:8px}.mini{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-weight:900;margin-bottom:5px}.direct-input{width:150px;min-height:38px;text-align:right;font-weight:950;font-size:20px;color:var(--primary)}.calc-total-box{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin:6px 0}.calc-label{font-weight:900;margin-bottom:4px}.calc-expr{width:100%;min-height:42px;text-align:right;font-size:24px;font-weight:950;color:var(--dark);background:white}.big{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 8px}.big span{color:var(--muted);font-weight:900;font-size:16px}.big strong{font-size:28px;line-height:1.05;font-weight:950}.big.total strong{color:var(--primary);font-size:34px}.big.change-row strong{color:var(--ok);font-size:34px}.big.change-row.negative strong{color:var(--danger)}.cash-hide{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.keypad button{min-height:43px;font-size:18px;border-radius:14px}.total-keypad button{font-size:20px}.actions{display:grid;grid-template-columns:1fr;gap:8px}.actions .save{min-height:52px;font-size:19px;background:var(--ok)}.actions button{min-height:43px}
 .nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:rgba(255,255,255,.94);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));z-index:4}.nav button{background:#f1f5f9;color:#334155;border-radius:18px}.nav button.active{background:var(--dark);color:white}.empty{text-align:center;color:var(--muted);padding:22px}table{width:100%;border-collapse:collapse;background:white}th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{background:#f3f6fb;color:#475569;font-weight:900;position:sticky;top:0;z-index:1}.num{text-align:right}.table-wrap{overflow:auto;max-height:calc(100dvh - 320px);border:1px solid var(--line);border-radius:16px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{background:#f1f5f9;color:#334155}.tab.active{background:var(--dark);color:white}.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 130px auto;gap:10px;align-items:end}.notice{padding:12px 14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:16px;line-height:1.55;font-size:14px}.manage-table input{width:100%;min-width:100px}#historyPage,#settingsPage{overflow:auto;padding-bottom:calc(var(--nav-h) + 22px);height:calc(100dvh - var(--header-h))}
 @media(max-width:980px){html,body{overflow:auto}.page{height:auto;overflow:visible}.layout{grid-template-columns:1fr;height:auto}.cart{height:auto;display:flex;flex-direction:column}.items{max-height:340px}.grid{max-height:none}.form-grid{grid-template-columns:1fr}}@media(max-width:720px){.grid{grid-template-columns:repeat(2,1fr)}header{height:auto;align-items:flex-start}.card{padding:10px}.actions{grid-template-columns:1fr}}
+
+/* Tablet fit optimization v4 */
+html, body {
+  width: 100%;
+  max-width: 100%;
+}
+
+body {
+  overflow: auto;
+}
+
+#checkoutPage {
+  height: calc(100dvh - var(--header-h) - var(--nav-h));
+  overflow: hidden;
+}
+
+.layout {
+  min-height: 0;
+}
+
+.cart {
+  min-height: 0;
+}
+
+.display {
+  padding: 8px 10px;
+}
+
+.calc-total-box {
+  padding: 6px 8px;
+  margin: 5px 0;
+}
+
+.calc-expr {
+  min-height: 38px;
+  font-size: 22px;
+}
+
+.big {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.big span {
+  font-size: 15px;
+}
+
+.big strong {
+  font-size: 25px;
+}
+
+.big.total strong,
+.big.change-row strong {
+  font-size: 30px;
+}
+
+.direct-input {
+  min-height: 34px;
+  font-size: 18px;
+}
+
+.keypad {
+  gap: 6px;
+}
+
+.keypad button {
+  min-height: 38px;
+  font-size: 17px;
+  padding: 7px 8px;
+}
+
+.item {
+  padding: 9px 10px;
+}
+
+.qty {
+  margin-top: 5px;
+}
+
+.qty button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+}
+
+.actions {
+  margin-top: 7px;
+}
+
+.actions .save {
+  min-height: 48px;
+}
+
+.actions button {
+  min-height: 40px;
+}
+
+/* iPad portrait / narrower tablets: allow page scroll, keep controls compact */
+@media (max-width: 1100px) {
+  html, body {
+    overflow: auto;
+  }
+
+  #checkoutPage {
+    height: auto;
+    min-height: calc(100dvh - var(--header-h) - var(--nav-h));
+    overflow-y: auto;
+    padding-bottom: calc(var(--nav-h) + 18px);
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .left-card,
+  .cart {
+    height: auto;
+    max-height: none;
+  }
+
+  .grid {
+    max-height: 40dvh;
+    min-height: 220px;
+    overflow: auto;
+  }
+
+  .cart {
+    overflow: visible;
+  }
+
+  .items {
+    max-height: 25dvh;
+    min-height: 110px;
+    overflow: auto;
+  }
+
+  .money {
+    overflow: visible;
+  }
+
+  .keypad {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Smaller portrait screens: further reduce keypad height */
+@media (max-height: 900px) {
+  .keypad button {
+    min-height: 34px;
+    font-size: 16px;
+    padding: 6px 7px;
+  }
+
+  .calc-expr {
+    min-height: 34px;
+    font-size: 20px;
+  }
+
+  .big.total strong,
+  .big.change-row strong {
+    font-size: 28px;
+  }
+
+  .direct-input {
+    min-height: 32px;
+  }
+
+  .items {
+    min-height: 95px;
+  }
+}
+
+/* Very small mobile fallback */
+@media (max-width: 720px) {
+  body {
+    overflow: auto;
+  }
+
+  #checkoutPage {
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+  }
+
+  .items {
+    max-height: 280px;
+  }
+}
+
 </style>
 </head>
 <body>
