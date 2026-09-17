@@ -218,12 +218,12 @@ body {
 <aside class="card cart"><div class="section-title"><h2>本筆訂單</h2><button class="danger" onclick="clearCart()">清空</button></div><div class="custom"><div class="row"><input id="customName" placeholder="自訂品項，可空白" style="flex:1;min-width:130px"><input id="customPrice" type="number" min="0" step="1" placeholder="金額" style="width:110px"><button class="secondary" onclick="addCustomAmount()">加入</button></div></div><div id="cartBox" class="items"></div><div class="calc"><div class="display">
   <div class="mini">
     <span>折扣金額</span>
-    <input id="discount" class="direct-input" type="number" min="0" step="1" value="0" inputmode="numeric" oninput="updateCheckout()" onchange="updateCheckout()" onkeyup="updateCheckout()">
+    <input id="discount" class="direct-input" type="number" min="0" step="1" value="0" inputmode="numeric">
   </div>
 
   <div class="calc-total-box">
     <div class="muted calc-label">總額計算</div>
-    <input id="calcExpr" class="calc-expr" placeholder="例如 885+888+999+59" inputmode="numeric" oninput="updateCheckout()" onchange="updateCheckout()" onkeyup="updateCheckout()">
+    <input id="calcExpr" class="calc-expr" placeholder="例如 885+888+999+59" inputmode="numeric">
   </div>
 
   <div class="big total">
@@ -233,7 +233,7 @@ body {
 
   <div class="mini">
     <span>實收</span>
-    <input id="cash" class="direct-input" type="number" min="0" step="1" value="0" placeholder="輸入實收" inputmode="numeric" oninput="updateCheckout()" onchange="updateCheckout()" onkeyup="updateCheckout()">
+    <input id="cash" class="direct-input" type="number" min="0" step="1" value="0" placeholder="輸入實收" inputmode="numeric">
   </div>
 
   <div class="big change-row">
@@ -241,10 +241,10 @@ body {
     <strong id="change">$0</strong>
   </div>
 </div></div><div class="keypad total-keypad">
-  <button onclick="pressCalcKey('7')">7</button><button onclick="pressCalcKey('8')">8</button><button onclick="pressCalcKey('9')">9</button><button class="secondary" onclick="pressCalcKey('+')">＋</button>
-  <button onclick="pressCalcKey('4')">4</button><button onclick="pressCalcKey('5')">5</button><button onclick="pressCalcKey('6')">6</button><button class="secondary" onclick="pressCalcKey('-')">－</button>
-  <button onclick="pressCalcKey('1')">1</button><button onclick="pressCalcKey('2')">2</button><button onclick="pressCalcKey('3')">3</button><button class="secondary" onclick="backspaceCalc()">⌫</button>
-  <button onclick="clearCalc()">C</button><button onclick="pressCalcKey('0')">0</button><button onclick="pressCalcKey('00')">00</button><button class="ok" onclick="applyCalcResult()">＝</button>
+  <button type="button" onclick="pressCalcKey('7')">7</button><button type="button" onclick="pressCalcKey('8')">8</button><button type="button" onclick="pressCalcKey('9')">9</button><button type="button" class="secondary" onclick="pressCalcKey('+')">＋</button>
+  <button type="button" onclick="pressCalcKey('4')">4</button><button type="button" onclick="pressCalcKey('5')">5</button><button type="button" onclick="pressCalcKey('6')">6</button><button type="button" class="secondary" onclick="pressCalcKey('-')">－</button>
+  <button type="button" onclick="pressCalcKey('1')">1</button><button type="button" onclick="pressCalcKey('2')">2</button><button type="button" onclick="pressCalcKey('3')">3</button><button type="button" class="secondary" onclick="backspaceCalc()">⌫</button>
+  <button type="button" onclick="clearCalc()">C</button><button type="button" onclick="pressCalcKey('0')">0</button><button type="button" onclick="pressCalcKey('00')">00</button><button type="button" class="ok" onclick="applyCalcResult()">＝</button>
 </div></div><div class="actions"><button class="save" onclick="saveOrder()">完成並儲存訂單</button><button class="dark" onclick="openPage('history')">查看銷售紀錄</button></div></aside>
 </div></section>
 
@@ -253,20 +253,147 @@ body {
 <nav class="nav"><button id="navCheckout" class="active" onclick="openPage('checkout')">結帳</button><button id="navHistory" onclick="openPage('history')">銷售紀錄</button><button id="navSettings" onclick="openPage('settings')">商品設定</button></nav>
 
 <script>
-const PRODUCT_KEY='anime_pos_products_final_v1',ORDERS_KEY='anime_pos_orders_final_v1',mainCats=['全部','鬼滅','我英','排球','咒術','坂本','柯南','獵人','吉依卡哇','寶可夢','三麗鷗'];let current='全部',sub='全部',cart=[],historyMode='summary';function cryptoId(){return'id_'+Math.random().toString(36).slice(2)+Date.now().toString(36)}const sampleProducts=[['鬼滅 徽章 商品A','鬼滅','徽章',80],['鬼滅 卡片 商品A','鬼滅','卡片',50],['鬼滅 立牌 商品A','鬼滅','立牌',120],['我英 商品A','我英','',100],['排球 商品A','排球','',100],['咒術 商品A','咒術','',100],['坂本 商品A','坂本','',100],['柯南 商品A','柯南','',100],['獵人 商品A','獵人','',100],['吉依卡哇 商品A','吉依卡哇','',100],['寶可夢 商品A','寶可夢','',100],['三麗鷗 商品A','三麗鷗','',100]].map(p=>({id:cryptoId(),name:p[0],category:p[1],sub:p[2],price:p[3]}));let products=loadProducts(),orders=loadOrders();if(!products.length){products=sampleProducts;saveProducts()}function money(n){return'$'+Math.round(Number(n||0)).toLocaleString('zh-TW')}function nowText(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`}function dateFileName(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}function todayCompactDate(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`}function generateOrderNo(){const prefix='ORD'+todayCompactDate();let max=0;orders.map(o=>String(o.orderNo||'')).filter(no=>no.startsWith(prefix)).forEach(no=>{const n=Number(no.slice(prefix.length));if(!Number.isNaN(n))max=Math.max(max,n)});return prefix+String(max+1).padStart(6,'0')}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function normalize(p){return{id:p.id||cryptoId(),name:String(p.name||'').trim(),category:String(p.category||'未分類').trim()||'未分類',sub:String(p.sub||p.subCategory||'').trim(),price:Number(p.price||0)}}function loadProducts(){try{return JSON.parse(localStorage.getItem(PRODUCT_KEY)||'[]').map(normalize).filter(p=>p.name)}catch{return[]}}function saveProducts(){localStorage.setItem(PRODUCT_KEY,JSON.stringify(products))}function loadOrders(){try{return JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]')}catch{return[]}}function saveOrder(){
-  if(!cart.length) return alert('請先加入商品');
-  const x = calc();
-  if(x.cashAmount < x.totalAmount && !confirm('實收金額少於應收金額，仍要儲存嗎？')) return;
+const PRODUCT_KEY='anime_pos_products_final_v1',ORDERS_KEY='anime_pos_orders_final_v1',mainCats=['全部','鬼滅','我英','排球','咒術','坂本','柯南','獵人','吉依卡哇','寶可夢','三麗鷗'];let current='全部',sub='全部',cart=[],historyMode='summary';function cryptoId(){return'id_'+Math.random().toString(36).slice(2)+Date.now().toString(36)}const sampleProducts=[['鬼滅 徽章 商品A','鬼滅','徽章',80],['鬼滅 卡片 商品A','鬼滅','卡片',50],['鬼滅 立牌 商品A','鬼滅','立牌',120],['我英 商品A','我英','',100],['排球 商品A','排球','',100],['咒術 商品A','咒術','',100],['坂本 商品A','坂本','',100],['柯南 商品A','柯南','',100],['獵人 商品A','獵人','',100],['吉依卡哇 商品A','吉依卡哇','',100],['寶可夢 商品A','寶可夢','',100],['三麗鷗 商品A','三麗鷗','',100]].map(p=>({id:cryptoId(),name:p[0],category:p[1],sub:p[2],price:p[3]}));let products=loadProducts(),orders=loadOrders();if(!products.length){products=sampleProducts;saveProducts()}function money(n){return'$'+Math.round(Number(n||0)).toLocaleString('zh-TW')}function nowText(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`}function dateFileName(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}function todayCompactDate(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`}function generateOrderNo(){const prefix='ORD'+todayCompactDate();let max=0;orders.map(o=>String(o.orderNo||'')).filter(no=>no.startsWith(prefix)).forEach(no=>{const n=Number(no.slice(prefix.length));if(!Number.isNaN(n))max=Math.max(max,n)});return prefix+String(max+1).padStart(6,'0')}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function normalize(p){return{id:p.id||cryptoId(),name:String(p.name||'').trim(),category:String(p.category||'未分類').trim()||'未分類',sub:String(p.sub||p.subCategory||'').trim(),price:Number(p.price||0)}}function loadProducts(){try{return JSON.parse(localStorage.getItem(PRODUCT_KEY)||'[]').map(normalize).filter(p=>p.name)}catch{return[]}}function saveProducts(){localStorage.setItem(PRODUCT_KEY,JSON.stringify(products))}function loadOrders(){try{return JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]')}catch{return[]}}function saveOrders(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders))}
+function getMainCats(){let dyn=[...new Set(products.map(p=>p.category).filter(Boolean))];return['全部',...[...new Set([...mainCats.filter(c=>c!=='全部'),...dyn])]]}function openPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById(page+'Page').classList.add('active');document.getElementById('nav'+page.charAt(0).toUpperCase()+page.slice(1)).classList.add('active');if(page==='history')renderHistory();if(page==='settings')renderManage()}function setCat(c){current=c;sub='全部';render()}function setSub(s){sub=s;render()}function getSubs(){if(current==='全部')return[];let arr=[...new Set(products.filter(p=>p.category===current&&p.sub).map(p=>p.sub))];return arr.length?['全部',...arr]:[]}function render(){count.textContent=products.length+' 項商品';let catsArr=getMainCats();if(current!=='全部'&&!catsArr.includes(current))current='全部';cats.innerHTML=catsArr.map(c=>`<button class="cat ${c===current?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('');let ss=getSubs();subs.innerHTML=ss.map(s=>`<button class="sub ${s===sub?'active':''}" onclick="setSub('${s}')">${s}</button>`).join('');breadcrumb.textContent=current==='全部'?'目前顯示：全部商品':`目前顯示：${current}${sub!=='全部'?' ＞ '+sub:''}`;let q=search.value.trim().toLowerCase();let list=products.filter(p=>(current==='全部'||p.category===current)&&(sub==='全部'||p.sub===sub)&&(!q||`${p.name} ${p.category} ${p.sub}`.toLowerCase().includes(q)));grid.innerHTML=list.length?list.map(p=>`<div class="product" onclick="add('${p.id}')"><div><div class="pname">${esc(p.name)}</div><div class="pcat">${esc(p.category)}${p.sub?' ＞ '+esc(p.sub):''}</div></div><div class="price">${money(p.price)}</div></div>`).join(''):'<div class="empty">目前分類沒有商品</div>';renderManage()}
+function add(id){let p=products.find(x=>x.id===id),it=cart.find(x=>x.id===id);if(it)it.qty++;else cart.push({...p,qty:1});renderCart()}function addCustomAmount(){let price=Number(customPrice.value),name=(customName.value||'自訂金額').trim()||'自訂金額';if(Number.isNaN(price)||price<=0)return alert('請輸入正確的自訂金額');cart.push({id:cryptoId(),name,category:'自訂',sub:'',price,qty:1});customName.value='';customPrice.value='';renderCart()}function adj(id,d){let it=cart.find(x=>x.id===id);if(!it)return;it.qty+=d;if(it.qty<=0)cart=cart.filter(x=>x.id!==id);renderCart()}function removeItem(id){cart=cart.filter(x=>x.id!==id);renderCart()}function parsePositiveNumberFromInput(id){
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  const value = String(el.value || '').replace(/,/g, '').trim();
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+function itemsSubtotal(){
+  return cart.reduce((sum, item) => {
+    return sum + Number(item.price || 0) * Number(item.qty || 0);
+  }, 0);
+}
+
+function evaluateTotalExpression(){
+  const el = document.getElementById('calcExpr');
+  const expr = String(el ? el.value : '').replace(/＋/g, '+').replace(/－/g, '-').trim();
+
+  if (!expr) return null;                 // 沒輸入總額計算，就用商品小計
+  if (!/^[0-9+\-\s]+$/.test(expr)) return null;
+  if (/[+\-]$/.test(expr)) return null;   // 還在輸入 885+，不要報錯，也不要更新成錯誤值
+
+  try {
+    const result = Function('return (' + expr + ')')();
+    if (!Number.isFinite(result) || result < 0) return null;
+    return Math.round(result);
+  } catch (e) {
+    return null;
+  }
+}
+
+function getCheckoutState(){
+  const subtotal = Math.round(itemsSubtotal());
+  const expressionTotal = evaluateTotalExpression();
+  const baseTotal = expressionTotal === null ? subtotal : expressionTotal;
+  const discount = Math.min(Math.round(parsePositiveNumberFromInput('discount')), baseTotal);
+  const total = Math.max(0, baseTotal - discount);
+  const cash = Math.round(parsePositiveNumberFromInput('cash'));
+  const change = cash - total;
+
+  return { subtotal, baseTotal, discount, total, cash, change };
+}
+
+function recalculateCheckout(){
+  const state = getCheckoutState();
+
+  const totalEl = document.getElementById('total');
+  const changeEl = document.getElementById('change');
+  const changeLabelEl = document.getElementById('changeLabel');
+  const changeRow = document.querySelector('.change-row');
+
+  if (totalEl) totalEl.textContent = money(state.total);
+  if (changeEl) changeEl.textContent = money(Math.abs(state.change));
+  if (changeLabelEl) changeLabelEl.textContent = state.change < 0 ? '尚缺' : '找零';
+  if (changeRow) changeRow.classList.toggle('negative', state.change < 0);
+
+  return state;
+}
+
+function renderCart(refreshItems=true){
+  if (refreshItems) {
+    cartBox.innerHTML = cart.length
+      ? cart.map(i => `<div class="item"><div><b>${esc(i.name)}</b><div class="muted">${esc(i.category)}${i.sub?' ＞ '+esc(i.sub):''}｜單價 ${money(i.price)}</div><div class="qty"><button class="secondary" onclick="adj('${i.id}',-1)">−</button><span>${i.qty}</span><button class="secondary" onclick="adj('${i.id}',1)">＋</button><button class="danger remove" onclick="removeItem('${i.id}')">移除</button></div></div><b>${money(Number(i.price||0)*Number(i.qty||0))}</b></div>`).join('')
+      : '<div class="empty">尚未加入商品</div>';
+  }
+  recalculateCheckout();
+}
+
+function clearCart(){
+  if (cart.length && !confirm('確定清空本筆訂單？')) return;
+  cart = [];
+  const discountEl = document.getElementById('discount');
+  const calcExprEl = document.getElementById('calcExpr');
+  const cashEl = document.getElementById('cash');
+
+  if (discountEl) discountEl.value = 0;
+  if (calcExprEl) calcExprEl.value = '';
+  if (cashEl) cashEl.value = 0;
+
+  renderCart(true);
+}
+
+function pressCalcKey(k){
+  const el = document.getElementById('calcExpr');
+  if (!el) return;
+
+  let cur = String(el.value || '');
+  const ops = ['+', '-'];
+
+  if (ops.includes(k)) {
+    if (!cur) return;
+    if (ops.includes(cur.slice(-1))) cur = cur.slice(0, -1);
+    el.value = cur + k;
+  } else {
+    el.value = (cur + k).replace(/^0+(?=\d)/, '');
+  }
+
+  recalculateCheckout();
+}
+
+function clearCalc(){
+  const el = document.getElementById('calcExpr');
+  if (el) el.value = '';
+  recalculateCheckout();
+}
+
+function backspaceCalc(){
+  const el = document.getElementById('calcExpr');
+  if (el) el.value = String(el.value || '').slice(0, -1);
+  recalculateCheckout();
+}
+
+function applyCalcResult(){
+  const el = document.getElementById('calcExpr');
+  if (!el) return;
+
+  const result = evaluateTotalExpression();
+  if (result !== null) el.value = String(result);
+  recalculateCheckout();
+}
+
+function saveOrder(){
+  if (!cart.length) return alert('請先加入商品');
+
+  const state = recalculateCheckout();
+
+  if (state.cash < state.total && !confirm('實收金額少於應收金額，仍要儲存嗎？')) return;
+
   const order = {
     orderNo: generateOrderNo(),
     createdAt: nowText(),
     items: cart.map(i => ({...i, lineTotal: Math.round(Number(i.price || 0) * Number(i.qty || 0))})),
-    subtotal: x.subtotal,
-    discountAmount: x.discountAmount,
-    total: x.totalAmount,
-    cashReceived: x.cashAmount,
-    change: Math.round(x.changeAmount)
+    subtotal: state.subtotal,
+    discountAmount: state.discount,
+    total: state.total,
+    cashReceived: state.cash,
+    change: Math.round(state.change)
   };
+
   orders.unshift(order);
   saveOrders();
   clearCart();
@@ -277,22 +404,16 @@ function switchHistory(m){historyMode=m;tabSummary.classList.toggle('active',m==
 function renderManage(){if(!productManage)return;let sorted=[...products].sort((a,b)=>a.category.localeCompare(b.category,'zh-Hant')||a.sub.localeCompare(b.sub,'zh-Hant')||a.name.localeCompare(b.name,'zh-Hant'));productManage.innerHTML=sorted.map(p=>`<tr><td><input value="${esc(p.name)}" onchange="editProduct('${p.id}','name',this.value)"></td><td><input value="${esc(p.category)}" onchange="editProduct('${p.id}','category',this.value)"></td><td><input value="${esc(p.sub)}" onchange="editProduct('${p.id}','sub',this.value)"></td><td class="num"><input type="number" value="${p.price}" onchange="editProduct('${p.id}','price',this.value)"></td><td><button class="danger" onclick="deleteProduct('${p.id}')">刪除</button></td></tr>`).join('');categoryList.innerHTML=getMainCats().filter(c=>c!=='全部').map(c=>`<option value="${esc(c)}"></option>`).join('')}function addProduct(){let name=newName.value.trim(),category=newCategory.value.trim()||'未分類',sub=newSubCategory.value.trim(),price=Number(newPrice.value);if(!name)return alert('請輸入商品名稱');if(Number.isNaN(price)||price<0)return alert('請輸入正確價格');products.push({id:cryptoId(),name,category,sub,price});saveProducts();newName.value='';newCategory.value='';newSubCategory.value='';newPrice.value='';current=category;window.sub=sub||'全部';render();alert('已新增商品')}function editProduct(id,field,value){let p=products.find(x=>x.id===id);if(!p)return;if(field==='price'){let n=Number(value);if(Number.isNaN(n)||n<0)return alert('價格不可為負數');p.price=n}else{p[field]=String(value).trim();if(field==='category'&&!p[field])p[field]='未分類'}saveProducts();cart.forEach(i=>{if(i.id===id)Object.assign(i,p)});render();renderCart()}function deleteProduct(id){let p=products.find(x=>x.id===id);if(!p)return;if(!confirm('確定刪除「'+p.name+'」？'))return;products=products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);saveProducts();render();renderCart()}function resetProducts(){if(!confirm('確定恢復預設動漫分類？目前商品設定會被覆蓋。'))return;products=sampleProducts.map(p=>({...p,id:cryptoId()}));saveProducts();current='全部';sub='全部';render()}
 function exportProductsCSV(){downloadText(toCSV(products.map(p=>({'商品名稱':p.name,'主分類':p.category,'子分類':p.sub,'價格':p.price}))),`商品設定_${dateFileName()}.csv`,'text/csv;charset=utf-8;')}function importProductsCSV(e){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=ev=>{try{let rows=parseCSV(ev.target.result).filter(r=>r.some(c=>String(c).trim()!==''));let start=0,idx={name:0,cat:1,sub:2,price:3};let first=(rows[0]||[]).map(x=>String(x).trim().toLowerCase());if(first.some(h=>['商品名稱','商品','name','主分類','分類','category','子分類','subcategory','價格','price'].includes(h))){start=1;idx.name=findHeaderIndex(first,['商品名稱','商品','name']);idx.cat=findHeaderIndex(first,['主分類','分類','category']);idx.sub=findHeaderIndex(first,['子分類','subcategory','類型']);idx.price=findHeaderIndex(first,['價格','price','售價']);if(idx.name<0)idx.name=0;if(idx.cat<0)idx.cat=1;if(idx.sub<0)idx.sub=2;if(idx.price<0)idx.price=rows[0].length>=4?3:2}else if(rows[0].length===3){idx={name:0,cat:1,sub:-1,price:2}}let imported=[];for(let i=start;i<rows.length;i++){let r=rows[i],name=String(r[idx.name]??'').trim(),category=String(r[idx.cat]??'未分類').trim()||'未分類',sub=idx.sub>=0?String(r[idx.sub]??'').trim():'',price=Number(String(r[idx.price]??'').replace(/[$,\s]/g,''));if(name&&!Number.isNaN(price)&&price>=0)imported.push({id:cryptoId(),name,category,sub,price})}if(!imported.length)return alert('沒有成功匯入任何商品');if(!confirm(`將匯入 ${imported.length} 項商品，並覆蓋目前商品清單。確定繼續？`))return;products=imported;cart=[];saveProducts();current='全部';sub='全部';render();renderCart()}catch(err){alert('匯入失敗，請確認 CSV 格式')}finally{e.target.value=''}};reader.readAsText(file,'utf-8')}
 function getExportRows(){let summary=orders.map(o=>({'時間':o.createdAt,'訂單編號':o.orderNo,'小計':o.subtotal,'折扣金額':o.discountAmount,'應收':o.total,'實收':o.cashReceived,'找零':o.change}));let detail=orders.flatMap(o=>o.items.map(i=>({'時間':o.createdAt,'訂單編號':o.orderNo,'主分類':i.category,'子分類':i.sub,'商品':i.name,'單價':i.price,'數量':i.qty,'商品小計':i.lineTotal,'訂單應收':o.total})));return{summary,detail}}function exportCSV(){if(!orders.length)return alert('目前沒有可匯出的銷售紀錄');let{summary,detail}=getExportRows();downloadText(toCSV(summary),`訂單總表_${dateFileName()}.csv`,'text/csv;charset=utf-8;');setTimeout(()=>downloadText(toCSV(detail),`商品明細_${dateFileName()}.csv`,'text/csv;charset=utf-8;'),250)}function exportExcel(){if(!orders.length)return alert('目前沒有可匯出的銷售紀錄');let{summary,detail}=getExportRows();downloadText(`<html><head><meta charset="UTF-8"></head><body><h2>訂單總表</h2>${rowsToTable(summary)}<br><h2>商品明細</h2>${rowsToTable(detail)}</body></html>`,`銷售紀錄_${dateFileName()}.xls`,'application/vnd.ms-excel;charset=utf-8;')}function rowsToTable(rows){if(!rows.length)return'<table></table>';let keys=Object.keys(rows[0]);return`<table border="1"><thead><tr>${keys.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${keys.map(k=>`<td>${esc(r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table>`}function toCSV(rows){if(!rows.length)return'';let keys=Object.keys(rows[0]),e=v=>`"${String(v??'').replace(/"/g,'""')}"`;return'\uFEFF'+keys.join(',')+'\n'+rows.map(r=>keys.map(k=>e(r[k])).join(',')).join('\n')}function parseCSV(text){let rows=[],row=[],cell='',q=false;text=String(text||'').replace(/^\uFEFF/,'');for(let i=0;i<text.length;i++){let ch=text[i],nx=text[i+1];if(ch==='"'&&q&&nx==='"'){cell+='"';i++}else if(ch==='"')q=!q;else if(ch===','&&!q){row.push(cell);cell=''}else if((ch==='\n'||ch==='\r')&&!q){if(ch==='\r'&&nx==='\n')i++;row.push(cell);rows.push(row);row=[];cell=''}else cell+=ch}row.push(cell);rows.push(row);return rows}function findHeaderIndex(headers,cands){return headers.findIndex(h=>cands.map(c=>c.toLowerCase()).includes(h))}function downloadText(text,filename,type){let blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-render();renderCart();renderHistory();
-['cash','discount','calcExpr'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el){
-    ['input','change','keyup','paste'].forEach(evt=>{
-      el.addEventListener(evt,()=>setTimeout(updateCheckout,0));
-    });
-  }
-});
-['cash','discount'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el){
-    ['input','change','keyup','paste'].forEach(evt=>{
-      el.addEventListener(evt,()=>setTimeout(updateCheckout,0));
-    });
-  }
+render();
+renderCart(true);
+renderHistory();
+
+['cash','discount','calcExpr'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  ['input','change','keyup','paste','compositionend'].forEach(evt => {
+    el.addEventListener(evt, () => setTimeout(recalculateCheckout, 0));
+  });
 });
 </script>
 </body>
