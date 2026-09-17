@@ -318,7 +318,7 @@ function renderCart(refreshItems=true){
   if (refreshItems) {
     cartBox.innerHTML = cart.length
       ? cart.map(i => `<div class="item"><div><b>${esc(i.name)}</b><div class="muted">${esc(i.category)}${i.sub?' ＞ '+esc(i.sub):''}｜單價 ${money(i.price)}</div><div class="qty"><button class="secondary" onclick="adj('${i.id}',-1)">−</button><span>${i.qty}</span><button class="secondary" onclick="adj('${i.id}',1)">＋</button><button class="danger remove" onclick="removeItem('${i.id}')">移除</button></div></div><b>${money(Number(i.price||0)*Number(i.qty||0))}</b></div>`).join('')
-      : '<div class="empty">尚未加入商品</div>';
+      : '<div class="empty">可不加入商品，直接用總額計算結帳</div>';
   }
   recalculateCheckout();
 }
@@ -377,17 +377,31 @@ function applyCalcResult(){
 }
 
 function saveOrder(){
-  if (!cart.length) return alert('請先加入商品');
-
   const state = recalculateCheckout();
 
+  if (state.total <= 0) {
+    return alert('總計為 0，請先輸入總額再儲存。');
+  }
+
   if (state.cash < state.total && !confirm('實收金額少於應收金額，仍要儲存嗎？')) return;
+
+  const savedItems = cart.length
+    ? cart.map(i => ({...i, lineTotal: Math.round(Number(i.price || 0) * Number(i.qty || 0))}))
+    : [{
+        id: cryptoId(),
+        name: '未輸入商品',
+        category: '快速結帳',
+        sub: '',
+        price: state.total,
+        qty: 1,
+        lineTotal: state.total
+      }];
 
   const order = {
     orderNo: generateOrderNo(),
     createdAt: nowText(),
-    items: cart.map(i => ({...i, lineTotal: Math.round(Number(i.price || 0) * Number(i.qty || 0))})),
-    subtotal: state.subtotal,
+    items: savedItems,
+    subtotal: state.subtotal || state.baseTotal || state.total,
     discountAmount: state.discount,
     total: state.total,
     cashReceived: state.cash,
